@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Blackhole • Astroview</title>
+  <style>
+    /* Reset */
+    html,body { height:100%; margin:0; padding:0; }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      color: #fff;
+      overflow: hidden; /* keep background fixed */
+      background: #000;
+    }
+
+    /* Full-screen background video */
+    #bg-video {
+      position: fixed;
+      inset: 0;               /* shorthand for top:0; right:0; bottom:0; left:0; */
+      width: 100vw;
+      height: 100vh;
+      object-fit: cover;      /* keep video covering background */
+      z-index: -1;
+      pointer-events: none;   /* clicks pass through */
+    }
+
+    /* Overlay content */
+    .overlay {
+      position: relative;
+      z-index: 10;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .card {
+      background: rgba(0,0,0,0.45);
+      padding: 28px;
+      border-radius: 12px;
+      box-shadow: 0 6px 30px rgba(0,0,0,0.6);
+      max-width: 95%;
+    }
+
+    h1 {
+      margin: 0 0 6px 0;
+      font-size: 2rem;
+      line-height: 1.05;
+    }
+    p { margin: 0; opacity: 0.9; }
+
+    /* Make sure audio element doesn't show or interfere */
+    #bg-audio {
+      display: none !important;
+    }
+
+    /* Ensure links are visible */
+    a { color: #9be7ff; text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <!-- Background video (looped, can't be paused) -->
+  <!-- Use muted attribute for more autoplay success; but if your video has sound and you want it audible,
+       you can remove muted. Browsers often require user gesture to start audible playback. -->
+  <video id="bg-video"
+         src="Blackhole.mp4"
+         autoplay
+         loop
+         muted
+         playsinline
+         preload="auto"
+         aria-hidden="true"></video>
+
+  <!-- Background audio (looped always). The file name you provided is Astroview.mp4 -->
+  <audio id="bg-audio"
+         src="Astroview.mp4"
+         autoplay
+         loop
+         preload="auto"
+         playsinline></audio>
+
+  <div class="overlay">
+    <div class="card">
+      <h1>Blackhole • Astroview</h1>
+      <p>Video background (Blackhole.mp4) and continuous audio (Astroview.mp4).</p>
+      <p style="font-size:.85rem; margin-top:10px; opacity:.8;">
+        If the audio does not start automatically, the browser likely blocked autoplay with sound.
+        A user interaction (click/tap) will usually allow playback.
+      </p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const video = document.getElementById('bg-video');
+      const audio = document.getElementById('bg-audio');
+
+      // Prevent default context menu on media elements (optional)
+      [video, audio].forEach(el => {
+        if (!el) return;
+        el.addEventListener('contextmenu', e => e.preventDefault());
+      });
+
+      // Best-effort play attempts (some browsers require a user gesture)
+      function tryPlayMedia() {
+        if (video) {
+          // try to play video (muted helps autoplay policies)
+          video.play().catch(err => {
+            // console.warn('Video play blocked:', err);
+          });
+        }
+        if (audio) {
+          audio.play().catch(err => {
+            // console.warn('Audio play blocked:', err);
+          });
+        }
+      }
+
+      // Repeated attempts to play (run on load and after visibility changes)
+      document.addEventListener('DOMContentLoaded', tryPlayMedia);
+      window.addEventListener('load', tryPlayMedia);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          tryPlayMedia();
+        }
+      });
+
+      // Monkeypatch pause() to be a no-op so page code can't pause the audio/video.
+      // It doesn't bypass browser UI or developer tools, but prevents accidental pause calls.
+      if (audio) {
+        try {
+          audio.pause = function () {
+            // no-op
+          };
+        } catch (e) { /* ignore */ }
+
+        // Ensure that if audio somehow pauses, we restart it immediately.
+        audio.addEventListener('pause', () => {
+          // try to restart after a tick
+          setTimeout(() => {
+            // call original play; browsers may block if no user gesture
+            audio.play().catch(() => {});
+          }, 50);
+        });
+
+        // Force continuous play if playback is interrupted
+        audio.addEventListener('ended', () => {
+          audio.currentTime = 0;
+          audio.play().catch(() => {});
+        });
+      }
+
+      if (video) {
+        try {
+          video.pause = function () {
+            // no-op
+          };
+        } catch (e) { /* ignore */ }
+
+        video.addEventListener('pause', () => {
+          setTimeout(() => {
+            video.play().catch(() => {});
+          }, 50);
+        });
+
+        video.addEventListener('ended', () => {
+          video.currentTime = 0;
+          video.play().catch(() => {});
+        });
+      }
+
+      // If a user or browser gesture is required, as soon as the user clicks/taps,
+      // attempt to start playback — this will usually succeed.
+      function userGestureHandler() {
+        tryPlayMedia();
+        // Once a gesture occurred, remove the handlers to avoid unnecessary calls.
+        window.removeEventListener('click', userGestureHandler);
+        window.removeEventListener('keydown', userGestureHandler);
+        window.removeEventListener('touchstart', userGestureHandler);
+      }
+      window.addEventListener('click', userGestureHandler, { once: true });
+      window.addEventListener('keydown', userGestureHandler, { once: true });
+      window.addEventListener('touchstart', userGestureHandler, { once: true });
+
+      // Defensive: resume if the element becomes suspended by the browser or other scripts
+      setInterval(() => {
+        if (audio && audio.paused) {
+          audio.play().catch(() => {});
+        }
+        if (video && video.paused) {
+          video.play().catch(() => {});
+        }
+      }, 2500);
+
+    })();
+  </script>
+</body>
+</html>
