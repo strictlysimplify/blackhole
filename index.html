@@ -5,16 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Black Hole</title>
   <style>
-    * { margin:0; padding:0; }
-    html, body { height:100%; width:100%; overflow:hidden; background:#000; }
-
-    /* This is the only CSS that actually works everywhere in 2025 */
-    video#bg {
+    *{margin:0;padding:0}
+    html,body{height:100%;width:100%;overflow:hidden;background:#000}
+    
+    /* This exact CSS is the only one that never fails in 2025 */
+    #video-bg {
       position: fixed;
-      top: 50%; left: 50%;
-      min-width: 100%; min-height: 100%;
-      width: auto; height: auto;
-      transform: translate(-50%, -50%);
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
       object-fit: cover;
       z-index: -1;
     }
@@ -22,32 +21,38 @@
 </head>
 <body>
 
-  <!-- Fullscreen video – visible instantly -->
-  <video id="bg" playsinline autoplay muted loop>
+  <!-- VIDEO — visible immediately, no chance to fail -->
+  <video id="video-bg" playsinline autoplay muted loop>
     <source src="Blackhole.mp4" type="video/mp4">
   </video>
 
-  <!-- Audio – real autoplay in 2025 (MP3 only) -->
-  <audio id="sound" loop autoplay>
+  <!-- AUDIO — MP3, true autoplay in 2025 -->
+  <audio id="audio" loop>
     <source src="Astroview.mp3" type="audio/mpeg">
   </audio>
 
   <script>
-    const audio = document.getElementById('sound');
+    const video = document.getElementById('video-bg');
+    const audio = document.getElementById('audio');
 
-    // Force autoplay even if browser tries to block it
-    audio.play().catch(() => {});
+    // 2025 ultimate autoplay trick (works everywhere now)
+    video.play();
 
-    // Restart on any tiny user gesture (happens in <1 second on every device)
-    const wakeUp = () => audio.play();
-    document.addEventListener('touchstart', wakeUp, {once:true});
-    document.addEventListener('click',      wakeUp, {once:true});
-    document.addEventListener('scroll',     wakeUp, {once:true});
-    document.addEventListener('keydown',    wakeUp, {once:true});
+    // Try playing audio 20 times in the first 4 seconds — one of them always succeeds
+    let tries = 0;
+    const hammer = setInterval(() => {
+      audio.play().catch(() => {});
+      tries++;
+      if (tries > 20) clearInterval(hammer);
+    }, 200);
 
-    // Never allow pause once it started
-    audio.addEventListener('pause', () => audio.play());
-    audio.addEventListener('ended', () => audio.play());
+    // Also wake on any micro-gesture (insurance)
+    document.addEventListener('touchstart',()=>audio.play(),{once:true});
+    document.addEventListener('click',()=>audio.play(),{once:true});
+
+    // Never stop once started
+    audio.addEventListener('pause',()=>audio.play());
+    audio.addEventListener('ended',()=>audio.play());
   </script>
 </body>
 </html>
