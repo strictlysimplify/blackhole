@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>void - strictlysimplify</title>
+<title>void</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%;width:100%;overflow:hidden;background:#000}
@@ -14,14 +13,10 @@
     top:50%;left:50%;
     width:80%;
     max-width:1000px;
-    aspect-ratio:16/9;
     transform:translate(-50%,-50%);
-    object-fit:cover;
     border-radius:24px;
     box-shadow:0 0 100px #000;
     z-index:1;
-    opacity:0;
-    transition:opacity 2s ease-in;
   }
   
   #intro{
@@ -29,13 +24,11 @@
     background:#000;
     display:flex;align-items:end;justify-content:center;
     padding-bottom:5vh;
-    color:#ccc;font-family:Arial,sans-serif;font-size:1rem;
+    color:#ccc;font-size:1rem;
     cursor:pointer;
-    transition:opacity 1.6s ease-out;
   }
-  
-  .hidden{opacity:0;pointer-events:none}
-  .visible{opacity:1}
+ 
+  .fade{transition:opacity 1.6s;opacity:0;pointer-events:none}
 </style>
 </head>
 <body>
@@ -55,18 +48,19 @@
   const video = document.getElementById('bg-video');
   const audio = document.getElementById('audio');
 
+  video.style.opacity = "0";
   video.play();
 
   intro.onclick = () => {
     audio.play();
-    intro.classList.add('hidden');
-    video.classList.add('visible');
+    intro.classList.add('fade');
+    video.style.opacity = "1";
     
     audio.onpause = () => audio.play();
     audio.onended = () => audio.play();
   };
 
-  intro.ontouchstart = e => { e.preventDefault(); intro.click(); };
+  intro.ontouchstart = e => {e.preventDefault();intro.click()};
 </script>
 </body>
 </html>
