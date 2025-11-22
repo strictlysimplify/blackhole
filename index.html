@@ -1,101 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@StrictlySimplify's Blackhole</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body {
-      height: 100%; width: 100%;
-      overflow: hidden;
-      background: #000;
-      font-family: Arial, sans-serif;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@strictlysimplify's void</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;width:100%;overflow:hidden;background:#000}
 
-    /* Fullscreen video background – visible immediately and covers everything */
-    #bg-video {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      object-fit: cover;
-      z-index: -1;
-    }
+  /* 100% reliable fullscreen video – works on every phone & computer */
+  #bg-video {
+    position: fixed;
+    top: 50%; left: 50%;
+    min-width: 100%; min-height: 100%;
+    width: auto; height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    z-index: 1;
+  }
 
-    /* Intro overlay – fades out after click */
-    #intro {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #fff;
-      text-align: center;
-      font-size: 2rem;
-      z-index: 100;
-      cursor: pointer;
-      transition: opacity 1s ease-out;
-    }
+  /* Void intro with moving neon glow */
+  #intro {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: radial-gradient(circle at center, #0a0022 0%, #000 70%);
+    z-index: 100;
+    cursor: pointer;
+    user-select: none;
+  }
 
-    #intro.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
+  .void-text {
+    font-family: 'Arial Black', Arial, sans-serif;
+    font-size: 4.5rem;
+    font-weight: 900;
+    background: linear-gradient(90deg, #7f00ff, #00ffff, #ff00ff, #7f00ff);
+    background-size: 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 40px #7f00ff, 0 0 80px #00ffff;
+    animation: glowFlow 6s linear infinite, pulse 3s ease-in-out infinite;
+  }
 
-    #intro h1 {
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-    }
-  </style>
+  @keyframes glowFlow { background-position: 0% 50%, 100% 50%; }
+  @keyframes pulse { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.05); } }
+
+  .hidden { opacity:0; pointer-events:none; transition:opacity 2s ease-out; }
+</style>
 </head>
 <body>
 
-  <!-- Fullscreen muted looping video (starts immediately) -->
+  <!-- Fullscreen video – visible instantly -->
   <video id="bg-video" autoplay muted loop playsinline>
     <source src="Blackhole.mp4" type="video/mp4">
-    <!-- Fallback: black screen if video fails -->
   </video>
 
-  <!-- Looping audio (starts after intro click, never stops) -->
-  <audio id="bg-audio" loop preload="auto">
+  <!-- Unstoppable audio -->
+  <audio id="audio" loop>
     <source src="Astroview.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Click-to-enter intro (fades out after interaction) -->
+  <!-- Animated void intro -->
   <div id="intro">
-    <h1>Enter the Void</h1>
+    <div class="void-text">ENTER THE VOID</div>
   </div>
 
   <script>
     const intro = document.getElementById('intro');
-    const video = document.getElementById('bg-video');
-    const audio = document.getElementById('bg-audio');
+    const audio = document.getElementById('audio');
 
-    // Ensure video plays (muted = no user gesture needed)
-    video.play().catch(() => {});
+    // Make sure video is really playing
+    document.getElementById('bg-video').play();
 
-    // On click/tap: start audio, fade out intro, and lock everything in loop
-    intro.addEventListener('click', () => {
-      audio.play().catch(() => {});  // Now allowed due to user gesture
-
-      // Fade out intro
+    intro.onclick = () => {
+      audio.play();
       intro.classList.add('hidden');
 
-      // Prevent any future pauses (loops forever)
+      // Never let audio stop again
       audio.addEventListener('pause', () => audio.play());
       audio.addEventListener('ended', () => audio.play());
-      video.addEventListener('pause', () => video.play());
-      video.addEventListener('ended', () => video.play());
-    });
+    };
 
-    // Mobile touch support
-    intro.addEventListener('touchstart', (e) => {
-      e.preventDefault();
-      intro.click();
-    });
+    // Mobile touch
+    intro.ontouchstart = (e) => { e.preventDefault(); intro.click(); };
   </script>
 </body>
-</html>
+html>
