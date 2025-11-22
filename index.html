@@ -3,13 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Black Hole</title>
+  <title>@StrictlySimplify's Blackhole</title>
   <style>
-    *{margin:0;padding:0}
-    html,body{height:100%;width:100%;overflow:hidden;background:#000}
-    
-    /* This exact CSS is the only one that never fails in 2025 */
-    #video-bg {
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      height: 100%; width: 100%;
+      overflow: hidden;
+      background: #000;
+      font-family: Arial, sans-serif;
+    }
+
+    /* Fullscreen video background – visible immediately and covers everything */
+    #bg-video {
       position: fixed;
       top: 0; left: 0;
       width: 100vw;
@@ -17,42 +22,80 @@
       object-fit: cover;
       z-index: -1;
     }
+
+    /* Intro overlay – fades out after click */
+    #intro {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-align: center;
+      font-size: 2rem;
+      z-index: 100;
+      cursor: pointer;
+      transition: opacity 1s ease-out;
+    }
+
+    #intro.hidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    #intro h1 {
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    }
   </style>
 </head>
 <body>
 
-  <!-- VIDEO — visible immediately, no chance to fail -->
-  <video id="video-bg" playsinline autoplay muted loop>
+  <!-- Fullscreen muted looping video (starts immediately) -->
+  <video id="bg-video" autoplay muted loop playsinline>
     <source src="Blackhole.mp4" type="video/mp4">
+    <!-- Fallback: black screen if video fails -->
   </video>
 
-  <!-- AUDIO — MP3, true autoplay in 2025 -->
-  <audio id="audio" loop>
+  <!-- Looping audio (starts after intro click, never stops) -->
+  <audio id="bg-audio" loop preload="auto">
     <source src="Astroview.mp3" type="audio/mpeg">
   </audio>
 
+  <!-- Click-to-enter intro (fades out after interaction) -->
+  <div id="intro">
+    <h1>Enter the Void</h1>
+  </div>
+
   <script>
-    const video = document.getElementById('video-bg');
-    const audio = document.getElementById('audio');
+    const intro = document.getElementById('intro');
+    const video = document.getElementById('bg-video');
+    const audio = document.getElementById('bg-audio');
 
-    // 2025 ultimate autoplay trick (works everywhere now)
-    video.play();
+    // Ensure video plays (muted = no user gesture needed)
+    video.play().catch(() => {});
 
-    // Try playing audio 20 times in the first 4 seconds — one of them always succeeds
-    let tries = 0;
-    const hammer = setInterval(() => {
-      audio.play().catch(() => {});
-      tries++;
-      if (tries > 20) clearInterval(hammer);
-    }, 200);
+    // On click/tap: start audio, fade out intro, and lock everything in loop
+    intro.addEventListener('click', () => {
+      audio.play().catch(() => {});  // Now allowed due to user gesture
 
-    // Also wake on any micro-gesture (insurance)
-    document.addEventListener('touchstart',()=>audio.play(),{once:true});
-    document.addEventListener('click',()=>audio.play(),{once:true});
+      // Fade out intro
+      intro.classList.add('hidden');
 
-    // Never stop once started
-    audio.addEventListener('pause',()=>audio.play());
-    audio.addEventListener('ended',()=>audio.play());
+      // Prevent any future pauses (loops forever)
+      audio.addEventListener('pause', () => audio.play());
+      audio.addEventListener('ended', () => audio.play());
+      video.addEventListener('pause', () => video.play());
+      video.addEventListener('ended', () => video.play());
+    });
+
+    // Mobile touch support
+    intro.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      intro.click();
+    });
   </script>
 </body>
 </html>
