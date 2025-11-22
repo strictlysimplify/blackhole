@@ -2,67 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Black Hole Experience</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Black Hole</title>
   <style>
+    * { margin:0; padding:0; }
     html, body {
-      margin: 0;
-      padding: 0;
       height: 100%;
       width: 100%;
       overflow: hidden;
       background: #000;
     }
 
-    #bg-video {
+    /* Real fullscreen background video */
+    video#bgvid {
       position: fixed;
-      top: 50%;
-      left: 50%;
-      min-width: 100%;
-      min-height: 100%;
-      width: auto;
-      height: auto;
-      transform: translateX(-50%) translateY(-50%);
-      z-index: -2;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
-    }
-
-    #bg-audio {
-      position: fixed;
-      top: -9999px;
-      left: -9999px;
-      visibility: hidden;
+      z-index: -1;
     }
   </style>
 </head>
 <body>
 
-  <!-- Full-screen background video (looped, autoplay, no controls hidden) -->
-  <video id="bg-video" autoplay muted loop playsinline>
+  <!-- FULLSCREEN BACKGROUND VIDEO -->
+  <video id="bgvid" playsinline autoplay muted loop>
     <source src="Blackhole.mp4" type="video/mp4">
-    Your browser does not support the video tag.
   </video>
 
-  <!-- Unstoppable background audio (WAV file, looped forever) -->
-  <audio id="bg-audio" autoplay loop>
+  <!-- UNSTOPPABLE AUDIO -->
+  <audio id="bgaudio" loop>
     <source src="Astroview.wav" type="audio/wav">
-    Your browser does not support the audio element.
   </audio>
 
   <script>
-    const audio = document.getElementById('bg-audio');
+    const video = document.getElementById('bgvid');
+    const audio = document.getElementById('bgaudio');
 
-    // Many browsers block autoplay until user interaction → click anywhere to unlock
-    document.body.addEventListener('click', () => {
-      audio.play().catch(e => console.log("Audio play blocked:", e));
-    }, { once: true });
+    // Start everything on first user interaction (required on mobile)
+    function unlockAudioVideo() {
+      video.play();
+      audio.play();
 
-    // If the audio ever pauses or ends, immediately restart it
+      // Remove the listeners after first unlock
+      document.body.removeEventListener('touchstart', unlockAudioVideo);
+      document.body.removeEventListener('click', unlockAudioVideo);
+    }
+
+    document.body.addEventListener('click', unlockAudioVideo);
+    document.body.addEventListener('touchstart', unlockAudioVideo);
+
+    // If anything ever pauses the audio → immediately restart
     audio.addEventListener('pause', () => audio.play());
     audio.addEventListener('ended', () => audio.play());
 
-    // Mobile browsers love suspending audio → keep trying
-    document.addEventListener('touchstart', () => audio.play());
+    // Make sure video never pauses either
+    video.addEventListener('pause', () => video.play());
+    video.addEventListener('ended', () => video.play());
   </script>
 </body>
 </html>
