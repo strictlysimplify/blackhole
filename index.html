@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>simplify's void</title>
+<title>void - strictlysimplify</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%;width:100%;overflow:hidden;background:#000}
@@ -11,16 +12,16 @@
   #bg-video{
     position:fixed;
     top:50%;left:50%;
-    width:70%;              /* smaller video */
-    max-width:900px;
+    width:80%;
+    max-width:1000px;
     aspect-ratio:16/9;
     transform:translate(-50%,-50%);
     object-fit:cover;
-    border-radius:20px;
-    box-shadow:0 0 80px #000;
+    border-radius:24px;
+    box-shadow:0 0 100px #000;
     z-index:1;
     opacity:0;
-    transition:opacity 1.8s ease-in;
+    transition:opacity 2s ease-in;
   }
   
   #intro{
@@ -30,7 +31,7 @@
     padding-bottom:5vh;
     color:#ccc;font-family:Arial,sans-serif;font-size:1rem;
     cursor:pointer;
-    transition:opacity 1.5s ease-out;
+    transition:opacity 1.6s ease-out;
   }
   
   .hidden{opacity:0;pointer-events:none}
@@ -39,33 +40,33 @@
 </head>
 <body>
 
-<video id="bg-video" autoplay muted loop playsinline>
+<video id="bg-video" autoplay muted loop playsinline preload="auto">
   <source src="Blackhole.mp4" type="video/mp4">
 </video>
 
-<audio id="audio" loop>
+<audio id="audio" loop preload="auto">
   <source src="Astroview.mp3" type="audio/mpeg">
 </audio>
 
 <div id="intro">( click to enter )</div>
 
 <script>
-  const intro=document.getElementById('intro');
-  const video=document.getElementById('bg-video');
-  const audio=document.getElementById('audio');
-  
+  const intro = document.getElementById('intro');
+  const video = document.getElementById('bg-video');
+  const audio = document.getElementById('audio');
+
   video.play();
-  
-  intro.onclick=()=>{
+
+  intro.onclick = () => {
     audio.play();
     intro.classList.add('hidden');
     video.classList.add('visible');
     
-    audio.addEventListener('pause',()=>audio.play());
-    audio.addEventListener('ended',()=>audio.play());
+    audio.onpause = () => audio.play();
+    audio.onended = () => audio.play();
   };
-  
-  intro.ontouchstart=e=>{e.preventDefault();intro.click()};
+
+  intro.ontouchstart = e => { e.preventDefault(); intro.click(); };
 </script>
 </body>
 </html>
