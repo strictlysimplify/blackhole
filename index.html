@@ -3,95 +3,69 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Enter the Void</title>
+<title>simplify's void</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%;width:100%;overflow:hidden;background:#000}
-
-  /* Perfect fullscreen video */
-  #bg-video {
-    position:fixed; top:50%; left:50%;
-    min-width:100%; min-height:100%;
+  
+  #bg-video{
+    position:fixed;
+    top:50%;left:50%;
+    width:70%;              /* smaller video */
+    max-width:900px;
+    aspect-ratio:16/9;
     transform:translate(-50%,-50%);
     object-fit:cover;
+    border-radius:20px;
+    box-shadow:0 0 80px #000;
     z-index:1;
+    opacity:0;
+    transition:opacity 1.8s ease-in;
   }
-
-  /* Intro overlay */
-  #intro {
-    position:fixed; inset:0; z-index:100;
-    display:flex; align-items:center; justify-content:center;
-    background:rgba(0,0,0,0.75);
+  
+  #intro{
+    position:fixed;inset:0;z-index:100;
+    background:#000;
+    display:flex;align-items:end;justify-content:center;
+    padding-bottom:5vh;
+    color:#ccc;font-family:Arial,sans-serif;font-size:1rem;
     cursor:pointer;
+    transition:opacity 1.5s ease-out;
   }
-
-  /* Main text — deep cosmic purple */
-  .void-text {
-    font-family:'Arial Black',sans-serif;
-    font-size:5.5rem;
-    font-weight:900;
-    letter-spacing:12px;
-    color:#8a2be2;
-    text-shadow:
-      0 0 30px #8a2be2,
-      0 0 60px #9932cc,
-      0 0 100px #da70d6;
-    position:relative;
-  }
-
-  /* Smoky aura that slowly expands and fades (pure CSS) */
-  .void-text::before {
-    content:"ENTER THE VOID";
-    position:absolute;
-    inset:0;
-    background:radial-gradient(circle, #8a2be2 10%, transparent 70%);
-    background-size:200% 200%;
-    -webkit-background-clip:text;
-    background-clip:text;
-    color:transparent;
-    filter:blur(20px);
-    opacity:0.9;
-    animation:smokeDrift 8s ease-out infinite;
-  }
-
-  @keyframes smokeDrift {
-    0%   { transform:scale(1) translateY(0);
-    50%  { transform:scale(1.3) translateY(-30px); opacity:0.6; }
-    100% { transform:scale(1.6) translateY(-60px); opacity:0; }
-  }
-
-  .hidden { opacity:0; transition:opacity 2s ease-out; pointer-events:none; }
+  
+  .hidden{opacity:0;pointer-events:none}
+  .visible{opacity:1}
 </style>
 </head>
 <body>
 
-  <video id="bg-video" autoplay muted loop playsinline>
-    <source src="Blackhole.mp4" type="video/mp4">
-  </video>
+<video id="bg-video" autoplay muted loop playsinline>
+  <source src="Blackhole.mp4" type="video/mp4">
+</video>
 
-  <audio id="audio" loop>
-    <source src="Astroview.mp3" type="audio/mpeg">
-  </audio>
+<audio id="audio" loop>
+  <source src="Astroview.mp3" type="audio/mpeg">
+</audio>
 
-  <div id="intro">
-    <div class="void-text">ENTER THE VOID</div>
-  </div>
+<div id="intro">( click to enter )</div>
 
-  <script>
-    const intro = document.getElementById('intro');
-    const audio = document.getElementById('audio');
-
-    document.getElementById('bg-video').play();
-
-    intro.onclick = () => {
-      audio.play();
-      intro.classList.add('hidden');
-
-      audio.addEventListener('pause', () => audio.play());
-      audio.addEventListener('ended', () => audio.play());
-    };
-
-    intro.ontouchstart = e => { e.preventDefault(); intro.click(); };
-  </script>
+<script>
+  const intro=document.getElementById('intro');
+  const video=document.getElementById('bg-video');
+  const audio=document.getElementById('audio');
+  
+  video.play();
+  
+  intro.onclick=()=>{
+    audio.play();
+    intro.classList.add('hidden');
+    video.classList.add('visible');
+    
+    audio.addEventListener('pause',()=>audio.play());
+    audio.addEventListener('ended',()=>audio.play());
+  };
+  
+  intro.ontouchstart=e=>{e.preventDefault();intro.click()};
+</script>
 </body>
 </html>
