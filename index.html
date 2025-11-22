@@ -3,89 +3,109 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>@strictlysimplify's void</title>
+<title>@strictlysimplify - void</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   html,body{height:100%;width:100%;overflow:hidden;background:#000}
 
-  /* 100% reliable fullscreen video – works on every phone & computer */
+  /* Fullscreen video with cosmic smoke/glow overlay */
   #bg-video {
-    position: fixed;
-    top: 50%; left: 50%;
-    min-width: 100%; min-height: 100%;
-    width: auto; height: auto;
-    transform: translate(-50%, -50%);
-    object-fit: cover;
-    z-index: 1;
+    position:fixed; top:50%; left:50%;
+    min-width:100%; min-height:100%;
+    transform:translate(-50%,-50%);
+    object-fit:cover;
+    z-index:1;
   }
 
-  /* Void intro with moving neon glow */
+  /* Moving cosmic smoke that surrounds the black hole */
+  .cosmic-smoke {
+    position:fixed; inset:0; z-index:2;
+    background: 
+      radial-gradient(circle at 30% 50%, rgba(120,0,255,0.4) 0%, transparent 40%),
+      radial-gradient(circle at 70% 30%, rgba(0,255,255,0.35) 0%, transparent 45%),
+      radial-gradient(circle at 50% 70%, rgba(255,0,150,0.3) 0%, transparent 50%);
+    animation: smoke 25s linear infinite;
+    pointer-events:none;
+  }
+
+  @keyframes smoke { 0%{transform:rotate(0deg) scale(1.1);} 100%{transform:rotate(360deg) scale(1.2);} }
+
+  /* Nebula-style intro text */
   #intro {
-    position: fixed;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: radial-gradient(circle at center, #0a0022 0%, #000 70%);
-    z-index: 100;
-    cursor: pointer;
-    user-select: none;
+    position:fixed; inset:0; z-index:100;
+    display:flex; align-items:center; justify-content:center;
+    background:rgba(0,0,0,0.6);
+    cursor:pointer;
   }
 
-  .void-text {
-    font-family: 'Arial Black', Arial, sans-serif;
-    font-size: 4.5rem;
-    font-weight: 900;
-    background: linear-gradient(90deg, #7f00ff, #00ffff, #ff00ff, #7f00ff);
-    background-size: 300%;
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
-    text-shadow: 0 0 40px #7f00ff, 0 0 80px #00ffff;
-    animation: glowFlow 6s linear infinite, pulse 3s ease-in-out infinite;
+  .nebula-text {
+    font-family:'Arial Black',sans-serif;
+    font-size:5.5rem;
+    font-weight:900;
+    letter-spacing:8px;
+    text-transform:uppercase;
+
+    /* Multi-layer nebula glow */
+    background:linear-gradient(45deg,
+      #4a00e0, #8e2de2, #00ffea, #ff00aa, #7f00ff, #00d4ff);
+    background-size:400% 400%;
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+
+    /* Animated starfield inside the letters */
+    filter: drop-shadow(0 0 30px #8e2de2) drop-shadow(0 0 80px #00ffff);
+
+    animation: 
+      nebulaFlow 12s ease-in-out infinite,
+      starPulse 4s ease-in-out infinite,
+      float 8s ease-in-out infinite;
   }
 
-  @keyframes glowFlow { background-position: 0% 50%, 100% 50%; }
-  @keyframes pulse { 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.05); } }
+  @keyframes nebulaFlow { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+  @keyframes starPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  @keyframes float { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-20px)} }
 
-  .hidden { opacity:0; pointer-events:none; transition:opacity 2s ease-out; }
+  .hidden { opacity:0; transition:opacity 2.5s ease-out; pointer-events:none; }
 </style>
 </head>
 <body>
 
-  <!-- Fullscreen video – visible instantly -->
+  <!-- Black hole video (now looks alive with smoke overlay) -->
   <video id="bg-video" autoplay muted loop playsinline>
     <source src="Blackhole.mp4" type="video/mp4">
   </video>
+
+  <!-- Moving cosmic smoke/plasma that swirls around the event horizon -->
+  <div class="cosmic-smoke"></div>
 
   <!-- Unstoppable audio -->
   <audio id="audio" loop>
     <source src="Astroview.mp3" type="audio/mpeg">
   </audio>
 
-  <!-- Animated void intro -->
+  <!-- Living nebula title -->
   <div id="intro">
-    <div class="void-text">ENTER THE VOID</div>
+    <div class="nebula-text">ENTER THE VOID</div>
   </div>
 
   <script>
     const intro = document.getElementById('intro');
     const audio = document.getElementById('audio');
 
-    // Make sure video is really playing
+    // Video plays instantly
     document.getElementById('bg-video').play();
 
     intro.onclick = () => {
       audio.play();
       intro.classList.add('hidden');
 
-      // Never let audio stop again
+      // Eternal loop protection
       audio.addEventListener('pause', () => audio.play());
       audio.addEventListener('ended', () => audio.play());
     };
 
-    // Mobile touch
-    intro.ontouchstart = (e) => { e.preventDefault(); intro.click(); };
+    intro.ontouchstart = e => { e.preventDefault(); intro.click(); };
   </script>
 </body>
-html>
+</html>
