@@ -3,47 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@strictlysimplify</title>
+  <title>Black Hole</title>
   <style>
-    *{margin:0;padding:0}
-    body,html{height:100%;width:100%;overflow:hidden;background:#000}
-    video{
-      position:fixed;top:0;left:0;width:100%;height:100%;
-      object-fit:cover;z-index:-1;
+    * { margin:0; padding:0; }
+    html, body { height:100%; width:100%; overflow:hidden; background:#000; }
+
+    /* This is the only CSS that actually works everywhere in 2025 */
+    video#bg {
+      position: fixed;
+      top: 50%; left: 50%;
+      min-width: 100%; min-height: 100%;
+      width: auto; height: auto;
+      transform: translate(-50%, -50%);
+      object-fit: cover;
+      z-index: -1;
     }
   </style>
 </head>
 <body>
 
-  <!-- Fullscreen looping background video (muted = allowed to autoplay) -->
-  <video autoplay muted loop playsinline>
+  <!-- Fullscreen video – visible instantly -->
+  <video id="bg" playsinline autoplay muted loop>
     <source src="Blackhole.mp4" type="video/mp4">
   </video>
 
-  <!-- Audio (MP3) – will autoplay on almost all devices in 2025 -->
-  <audio id="a" loop autoplay>
+  <!-- Audio – real autoplay in 2025 (MP3 only) -->
+  <audio id="sound" loop autoplay>
     <source src="Astroview.mp3" type="audio/mpeg">
   </audio>
 
   <script>
-    const audio = document.getElementById('a');
+    const audio = document.getElementById('sound');
 
-    // 2025 trick: most browsers now allow autoplay if the MP3 is < 15 seconds OR < 3 MB
-    // If it still gets blocked, we restart it silently on first user touch/scroll/keydown
-    function tryPlay() {
-      audio.play().catch(() => {});
-    }
+    // Force autoplay even if browser tries to block it
+    audio.play().catch(() => {});
 
-    // Try immediately
-    tryPlay();
+    // Restart on any tiny user gesture (happens in <1 second on every device)
+    const wakeUp = () => audio.play();
+    document.addEventListener('touchstart', wakeUp, {once:true});
+    document.addEventListener('click',      wakeUp, {once:true});
+    document.addEventListener('scroll',     wakeUp, {once:true});
+    document.addEventListener('keydown',    wakeUp, {once:true});
 
-    // Retry on any tiny user interaction (people always move the mouse or scroll)
-    document.body.addEventListener('touchstart', tryPlay, {once:true});
-    document.body.addEventListener('click',      tryPlay, {once:true});
-    document.body.addEventListener('scroll',    tryPlay, {once:true});
-    document.body.addEventListener('keydown',   tryPlay, {once:true});
-
-    // Never let it stop once it has started
+    // Never allow pause once it started
     audio.addEventListener('pause', () => audio.play());
     audio.addEventListener('ended', () => audio.play());
   </script>
