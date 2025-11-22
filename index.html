@@ -1,100 +1,68 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Blackhole • Astroview</title>
-
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Black Hole Experience</title>
   <style>
     html, body {
-      height: 100%;
       margin: 0;
       padding: 0;
-      background: #000;
+      height: 100%;
+      width: 100%;
       overflow: hidden;
+      background: #000;
     }
 
-    /* Fullscreen video */
     #bg-video {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
+      top: 50%;
+      left: 50%;
+      min-width: 100%;
+      min-height: 100%;
+      width: auto;
+      height: auto;
+      transform: translateX(-50%) translateY(-50%);
+      z-index: -2;
       object-fit: cover;
-      z-index: -1;
-      pointer-events: none;
     }
 
-    /* Center click-to-enter text */
-    #enter {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: black;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      font-size: 2.4em;
-      font-family: system-ui, sans-serif;
-      cursor: pointer;
-      z-index: 10;
-    }
-
-    /* Hide audio element */
     #bg-audio {
-      display: none !important;
+      position: fixed;
+      top: -9999px;
+      left: -9999px;
+      visibility: hidden;
     }
   </style>
 </head>
 <body>
 
-  <!-- Click Intro -->
-  <div id="enter">Click to enter the black hole.</div>
+  <!-- Full-screen background video (looped, autoplay, no controls hidden) -->
+  <video id="bg-video" autoplay muted loop playsinline>
+    <source src="Blackhole.mp4" type="video/mp4">
+    Your browser does not support the video tag.
+  </video>
 
-  <!-- Background Video -->
-  <video id="bg-video"
-         src="Blackhole.mp4"
-         loop
-         muted
-         playsinline
-         preload="auto"></video>
-
-  <!-- Background Audio -->
-  <audio id="bg-audio"
-         src="Astroview.wav"
-         loop
-         preload="auto"
-         playsinline></audio>
+  <!-- Unstoppable background audio (WAV file, looped forever) -->
+  <audio id="bg-audio" autoplay loop>
+    <source src="Astroview.wav" type="audio/wav">
+    Your browser does not support the audio element.
+  </audio>
 
   <script>
-    const enter = document.getElementById("enter");
-    const video = document.getElementById("bg-video");
-    const audio = document.getElementById("bg-audio");
+    const audio = document.getElementById('bg-audio');
 
-    enter.addEventListener("click", () => {
-      // Start playback after user gesture
-      video.play().catch(() => {});
-      audio.play().catch(() => {});
+    // Many browsers block autoplay until user interaction → click anywhere to unlock
+    document.body.addEventListener('click', () => {
+      audio.play().catch(e => console.log("Audio play blocked:", e));
+    }, { once: true });
 
-      // Fade out intro screen
-      enter.style.transition = "opacity 1s";
-      enter.style.opacity = "0";
-      setTimeout(() => enter.style.display = "none", 900);
-    });
+    // If the audio ever pauses or ends, immediately restart it
+    audio.addEventListener('pause', () => audio.play());
+    audio.addEventListener('ended', () => audio.play());
 
-    // Lock video/audio so they cannot be paused
-    function lockPlayback(el) {
-      el.pause = function() {};
-      el.addEventListener("pause", () => setTimeout(() => el.play().catch(()=>{}), 50));
-    }
-
-    lockPlayback(video);
-    lockPlayback(audio);
+    // Mobile browsers love suspending audio → keep trying
+    document.addEventListener('touchstart', () => audio.play());
   </script>
-
 </body>
 </html>
