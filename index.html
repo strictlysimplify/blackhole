@@ -5,39 +5,64 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>@strictlysimplify - Blackhole</title>
 
-  <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      background: #000;
-    }
+<style>
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background: black;
+    font-family: Arial, sans-serif;
+  }
 
-    /* Fullscreen background video */
-    #bg-video {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      object-fit: cover;
-      z-index: -1;
-      pointer-events: none;
-    }
+  /* Intro screen */
+  #intro {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: black;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2rem;
+    text-align: center;
+    cursor: pointer;
+    z-index: 10;
+    opacity: 1;
+    transition: opacity 1s ease;
+  }
 
-    /* Hidden audio */
-    #bg-audio {
-      display: none !important;
-    }
-  </style>
+  /* Fullscreen background video */
+  #bg-video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 1.5s ease;
+    pointer-events: none;
+  }
+
+  /* Hidden audio */
+  #bg-audio {
+    display: none !important;
+  }
+</style>
 </head>
 <body>
+
+  <!-- Intro -->
+  <div id="intro">Click to enter the black hole.</div>
 
   <!-- Background Video -->
   <video id="bg-video"
          src="Blackhole.mp4"
-         autoplay
          loop
          muted
          playsinline
@@ -46,57 +71,49 @@
   <!-- Background Audio -->
   <audio id="bg-audio"
          src="Astroview.wav"
-         autoplay
          loop
-         preload="auto"
-         playsinline></audio>
+         preload="auto"></audio>
 
-  <script>
-    const video = document.getElementById("bg-video");
-    const audio = document.getElementById("bg-audio");
+<script>
+  const intro = document.getElementById("intro");
+  const video = document.getElementById("bg-video");
+  const audio = document.getElementById("bg-audio");
 
-    function tryPlay() {
-      video.play().catch(() => {});
-      audio.play().catch(() => {});
-    }
+  // Disable pause functionality
+  function lockPlayback(el) {
+    el.pause = function(){};
+    el.addEventListener("pause", () => {
+      setTimeout(() => el.play().catch(()=>{}), 50);
+    });
+    el.addEventListener("ended", () => {
+      el.currentTime = 0;
+      el.play().catch(()=>{});
+    });
+  }
+  lockPlayback(video);
+  lockPlayback(audio);
 
-    // Initial autoplay attempt
-    document.addEventListener("DOMContentLoaded", tryPlay);
-    window.addEventListener("load", tryPlay);
+  // FIRST CLICK STARTS EVERYTHING
+  intro.addEventListener("click", () => {
 
-    // Prevent pause
-    function lockPlayback(el) {
-      el.pause = function(){};
-      el.addEventListener("pause", () => {
-        setTimeout(() => el.play().catch(()=>{}), 50);
-      });
-      el.addEventListener("ended", () => {
-        el.currentTime = 0;
-        el.play().catch(()=>{});
-      });
-    }
+    // Fade out intro
+    intro.style.opacity = "0";
+    setTimeout(() => intro.style.display = "none", 1000);
 
-    lockPlayback(video);
-    lockPlayback(audio);
+    // Fade in video
+    video.style.opacity = "1";
 
-    // Fallback: first click/tap forces audio to start
-    function userStart() {
-      audio.play().catch(()=>{});
-      video.play().catch(()=>{});
+    // Start media
+    video.play().catch(()=>{});
+    audio.play().catch(()=>{});
+  });
 
-      window.removeEventListener("click", userStart);
-      window.removeEventListener("touchstart", userStart);
-    }
-
-    window.addEventListener("click", userStart);
-    window.addEventListener("touchstart", userStart);
-
-    // Backup enforcement every few seconds
-    setInterval(() => {
-      if (audio.paused) audio.play().catch(()=>{});
-      if (video.paused) video.play().catch(()=>{});
-    }, 2500);
-  </script>
+  // Safety fallback
+  setInterval(() => {
+    if (video.paused) video.play().catch(()=>{});
+    if (audio.paused) audio.play().catch(()=>{});
+  }, 2500);
+</script>
 
 </body>
 </html>
